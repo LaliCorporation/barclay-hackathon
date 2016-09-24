@@ -1,0 +1,22 @@
+[
+    {
+        "id": "4051694345404902",
+        "description": "Regular Savings Account",
+        "nickName": "John savings",
+        "customerId": "8384692676375758",
+        "accountType": "SAVINGS_ACCOUNT",
+        "sortCode": 402578,
+        "accountNo": "****8122",
+        "currentBalance": 5000
+    },
+     {
+        "id": "4051694345404903",
+        "description": "Amazon Current Account",
+        "nickName": "Amazon UK Retailer",
+        "customerId": "8384692676375759",
+        "accountType": "CURRENT_ACCOUNT",
+        "sortCode": 402579,
+        "accountNo": "****8123",
+        "currentBalance": 452354
+    }
+]

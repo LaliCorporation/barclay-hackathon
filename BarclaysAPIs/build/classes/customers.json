@@ -1,0 +1,36 @@
+[
+    {
+        "id": "8384692676375758",
+        "type": "INDIVIDUAL",
+        "title": "MR",
+        "firstName": "John",
+        "lastName": "Smith",
+        "middleNames": "",
+        "mobileNo": "91-9969085096",
+        "nationalityCode": "UK",
+        "dateOfBirth": "01-01-1983 00:00:00 UTC",
+        "address": {
+            "number": "3",
+            "buildingName": "",
+            "street": "Kensington Grove",
+            "town": "Altrincham",
+            "postalCode": "WA145BF",
+            "country": "UK"
+        }},
+        {
+        "id": "8384692676375759",
+        "type": "MERCHANT",
+		"name": "Amazon UK",
+        "middleNames": "",
+        "mobileNo": "91-123456789",
+        "estDate": "01-01-1983 00:00:00 UTC",
+        "address": {
+            "number": "3",
+            "buildingName": "",
+            "street": "Kensington Grove",
+            "town": "Altrincham",
+            "postalCode": "WA145BF",
+            "country": "UK"
+        }
+    }
+]
