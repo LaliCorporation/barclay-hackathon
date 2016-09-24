@@ -10,7 +10,8 @@ public class RegManager {
 	public boolean makeEntry(String mobile,String type,String botname,String seqid){
 		
 		RegistryData registryData = new RegistryData();
-		String otp = Tools.generateOtp();
+		String otp ="9999";
+		//String otp = Tools.generateOtp();
 		
 		if(registryData.makeEntry(mobile, type, botname, seqid,otp)){
 			try {
