@@ -5,26 +5,22 @@ import java.util.Scanner;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 public class Data {
-	
-	private static JSONArray customers;
-	private static JSONArray accounts;
-	private static JSONArray transactions;
 	private static Data data = null;
 	
-	private Data()
-	{
-		
-	}
+	private JSONArray customers;
+	private JSONArray accounts;
+	private JSONArray transactions;
+	
+	private Data() {}
 	
 	public static synchronized Data getInstance()
 	{
 		if(data==null)
 		{
 			data = new Data();
-			loadData();
+			data.loadData();
 		}
 		return data;
 	}
@@ -37,7 +33,7 @@ public class Data {
 	}
 
 	public void setCustomers(JSONArray customers) {
-		customers = customers;
+		this.customers = customers;
 	}
 
 	public JSONArray getAccounts() {
@@ -45,7 +41,7 @@ public class Data {
 	}
 
 	public void setAccounts(JSONArray accounts) {
-		accounts = accounts;
+		this.accounts = accounts;
 	}
 
 	public JSONArray getTransactions() {
@@ -53,10 +49,10 @@ public class Data {
 	}
 
 	public void setTransactions(JSONArray transactions) {
-		transactions = transactions;
+		this.transactions = transactions;
 	}
 
-	private static void loadData() 
+	private void loadData() 
 	{
 		customers = loadFile("customers.json");
 		accounts = loadFile("accounts.json");
@@ -74,12 +70,13 @@ public class Data {
 		try {
 			return new JSONArray(sb.toString());
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
+		finally {
+			try {
+				s.close();
+			} catch (Exception e){}
+		}
 	}
-	
-	
-
 }
