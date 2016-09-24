@@ -1,0 +1,28 @@
+{
+  "name": "MainBot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.0.0-rc.6",
+    "aws-sdk": "^2.4.2",
+    "config.json": "*",
+    "forever": "^0.15.2",
+    "httpdispatcher": "^1.0.0",
+    "jasmine": "^2.4.1",
+    "jasmine-node": "^1.14.5",
+    "lokijs": "^1.3.19",
+    "ngrok": "^2.2.2",
+    "node-inspector": "^0.12.8",
+    "node-wit": "^4.0.0",
+    "properties-reader": "0.0.15",
+    "request": "^2.75.0",
+    "route": "^0.2.5",
+    "supervisor": "^0.11.0"
+  }
+}
