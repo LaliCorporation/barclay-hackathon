@@ -4,18 +4,27 @@ import org.json.JSONObject;
 
 import io.gs.barchack.userbot.banking.BaseAccountBot;
 import io.gs.barchack.userbot.banking.IBCTransaction;
+import io.gs.barchack.userbot.banking.RequestFunds;
 import io.gs.barchack.userbot.banking.TransactionStore;
 
-public class SimpleValidatingBot extends BaseValidatingBot {
+public class WorkflowBot extends BaseValidatingBot {
 	private JSONObject userBotConversation;
+	private JSONObject adminBotConversation;
 	
-	public SimpleValidatingBot(BaseAccountBot baseBot, TransactionStore pers, String botname) {
+	public WorkflowBot(BaseAccountBot baseBot, TransactionStore pers, String botname) {
 		super(baseBot, pers, botname);
 	}
 	
-	public void sendApprovalMessageToOwner(String message, String id) {
-		System.out.println("Sending approval message...");
-		if(userBotConversation == null)
+	private JSONObject getAppropriateContext(int amount) {
+		if(amount > 1000)
+			return adminBotConversation;
+		return userBotConversation;
+	}
+	
+	public void sendApprovalMessage(String message, String id, int amount) {
+		JSONObject ctx = getAppropriateContext(amount);
+		
+		if(ctx == null)
 			return;
 		
 		System.out.println("Have user msg...");
@@ -23,12 +32,15 @@ public class SimpleValidatingBot extends BaseValidatingBot {
 		String text = message 
 				+ " Reply [approve " + id + "] to approve"
 				+ " or [reject " + id + "] to reject.";
-		sendMessage(text, userBotConversation);
+		sendMessage(text, ctx);
 	}
-	private void notifyOwner(String message) {
-		if(userBotConversation == null)
+	
+	private void notify(String message, int amount) {
+		JSONObject ctx = getAppropriateContext(amount);
+		
+		if(ctx == null)
 			return;
-		sendMessage(message, userBotConversation);
+		sendMessage(message, ctx);
 	}
 	private boolean isApprovedByUser(JSONObject msg) {
 		String txt = msg.getString("text").toLowerCase();
@@ -40,8 +52,13 @@ public class SimpleValidatingBot extends BaseValidatingBot {
 
 	@Override
 	public void handleMessage(JSONObject ctx, JSONObject sdr, JSONObject msg) {
-		if(msg.getString("text").trim().toLowerCase().equals("register")) {
+		if(msg.getString("text").trim().toLowerCase().equals("register-user")) {
 			this.userBotConversation = ctx;
+			System.out.println("Registered...");
+			return;
+		}
+		if(msg.getString("text").trim().toLowerCase().equals("register-admin")) {
+			this.adminBotConversation = ctx;
 			System.out.println("Registered...");
 			return;
 		}
@@ -87,14 +104,13 @@ public class SimpleValidatingBot extends BaseValidatingBot {
 					+ t.getRequestingEntityDisplay()
 					+ " completed abnormally.";
 		}
-		notifyOwner(usermsg);
+		notify(usermsg, ((RequestFunds)t).amount());
 	}
 
 	@Override
 	public void performTransaction(IBCTransaction t) {
 		System.out.println("Got transaction:" + t.getRequestDisplay() + ", from:" + t.getRequestingEntityDisplay());
-		
-		sendApprovalMessageToOwner(getTransactionApprovalMessage(t), t.getRequestUUID());
+		sendApprovalMessage(getTransactionApprovalMessage(t), t.getRequestUUID(), ((RequestFunds)t).amount());
 		setTimeout(t.getRequestUUID(), this.timeout);
 	}
 }

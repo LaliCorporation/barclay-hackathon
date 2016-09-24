@@ -15,19 +15,36 @@ public class Application {
 		return app;
 	}
 	
-	private PersonalAccountBot nirBot;
+	private PersonalAccountBot nirBot1,nirBot2,nirBot3;
 	private TransactionStore store;
 	
 	private Application() {
 		this.store = new InRamTransactionStore();
-		nirBot = new SimpleValidatingBot(
+		nirBot1 = new SimpleValidatingBot(
 				new DummyBaseBot(),
-				null,
-				store);
+				store,
+				"bdemo1"
+				);
+		nirBot2 = new AutoapprovalBot(
+				new DummyBaseBot(),
+				store,
+				"bdemo1"
+				);
+		nirBot3 = new AutoapprovalBot(
+				new DummyBaseBot(),
+				store,
+				"bdemo1"
+				);
 	}
 	
-	public PersonalAccountBot getUserBot(String username) {
-		return nirBot;
+	public PersonalAccountBot getSimpleBot(String username) {
+		return nirBot1;
+	}
+	public PersonalAccountBot getWorkflowBot(String username) {
+		return nirBot2;
+	}
+	public PersonalAccountBot getAutoapprovalBot(String username) {
+		return nirBot3;
 	}
 	public TransactionStore getStore() {
 		return store;

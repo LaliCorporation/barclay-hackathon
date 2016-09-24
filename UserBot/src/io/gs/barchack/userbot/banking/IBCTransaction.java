@@ -20,4 +20,6 @@ public interface IBCTransaction {
 	public JSONObject getRequestingContext();
 	
 	public String getId();
+	
+	public String merchant();
 }

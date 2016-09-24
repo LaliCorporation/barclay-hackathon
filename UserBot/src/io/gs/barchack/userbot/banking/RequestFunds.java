@@ -20,6 +20,10 @@ public class RequestFunds implements IBCTransaction {
 	private String sender, reason, display, id;
 	private int amount;
 
+	public int amount() {
+		return amount;
+	}
+	
 	@Override
 	public boolean isComplete() {
 		return complete;
@@ -40,7 +44,7 @@ public class RequestFunds implements IBCTransaction {
 		if(isComplete())
 			return;
 		this.complete = true;
-		this.status = "cancelled";
+		this.status = "failed";
 		this.reason = reason;
 	}
 
@@ -49,7 +53,7 @@ public class RequestFunds implements IBCTransaction {
 		if(isComplete())
 			return;
 		this.complete = true;
-		this.status = "completed";
+		this.status = "success";
 		this.reason = "approved";
 		this.payload = data;
 	}
@@ -57,6 +61,11 @@ public class RequestFunds implements IBCTransaction {
 	@Override
 	public String getIBCResponseData() {
 		JSONObject jo = new JSONObject();
+		
+		jo.put("reqtype", "barcreq");
+		jo.put("transaction-type", "reqfunds-response");
+		jo.put("tid", this.getId());
+		
 		jo.put("status", this.status);
 		jo.put("reason", this.reason);
 		jo.put("payload", this.payload);
@@ -86,5 +95,10 @@ public class RequestFunds implements IBCTransaction {
 	@Override
 	public String getId() {
 		return id;
+	}
+
+	@Override
+	public String merchant() {
+		return sender;
 	}
 }

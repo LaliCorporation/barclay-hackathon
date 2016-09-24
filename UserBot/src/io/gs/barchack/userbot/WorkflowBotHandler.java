@@ -15,8 +15,8 @@ import io.gs.barchack.userbot.banking.RequestFunds;
 /**
  * Servlet implementation class BotHandler
  */
-@WebServlet("/simplebot/*")
-public class BotHandler extends HttpServlet {
+@WebServlet("/workflow/*")
+public class WorkflowBotHandler extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private final Application app = Application.getInstance();
@@ -24,7 +24,7 @@ public class BotHandler extends HttpServlet {
     /**
      * Default constructor. 
      */
-    public BotHandler() {
+    public WorkflowBotHandler() {
         // TODO Auto-generated constructor stub
     }
     
@@ -40,7 +40,7 @@ public class BotHandler extends HttpServlet {
 		System.out.println("Got req...");
 		
 		String user = getUser(request);
-		PersonalAccountBot bot = app.getUserBot(user);
+		PersonalAccountBot bot = app.getWorkflowBot(user);
 		
 		JSONObject ctx = new JSONObject(request.getParameter("contextobj"));
 		JSONObject msg = new JSONObject(request.getParameter("messageobj"));
@@ -48,8 +48,10 @@ public class BotHandler extends HttpServlet {
 		
 		if(ctx.getString("channeltype").equals("ibc")) {
 			try {
-				System.out.println("Got IBC request");
-				JSONObject jo = new JSONObject(msg.getString("text"));
+				String txt = msg.getString("text");
+				System.out.println("Got IBC request:" + txt);
+				JSONObject jo = new JSONObject(txt);
+				System.out.println("JO:");
 				if(jo.getString("reqtype").equals("barcreq")) {
 					String ttype = jo.getString("transaction-type");
 					if(ttype.equals("reqfunds")) {
@@ -68,6 +70,7 @@ public class BotHandler extends HttpServlet {
 			}
 		} else {
 			//user message
+			bot.handleMessage(ctx, sdr, msg);
 			response.getWriter().append("Served at: ").append(request.getContextPath());
 		}
 	}
