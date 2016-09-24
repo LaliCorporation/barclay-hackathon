@@ -8,48 +8,73 @@ var sampleRequest = {
 /** This is a sample code for your bot**/
 function MessageHandler(context, event) {
 
-    if (!context.simpledb.botleveldata.transactions) {
-        context.simpledb.botleveldata.transactions = [];
-    }
-
     var msg = event.message;
     console.log(event);
     console.log("####");
     if ('ibc' == event.contextobj.channeltype) {
         return handleIBCResponse(context, event);
     }
-
-    var userRequest = {};
-    try {
-        userRequest = JSON.parse(msg);
-        userRequest.tid = "" + new Date().getTime();
-    } catch (e) {
-        if ('listall' == msg.toLowerCase()) {
-            return context.sendResponse(JSON.stringify(context.simpledb.botleveldata.transactions));
+    var dbkey = event.senderobj.channeltype + ":" + event.senderobj.channelid;
+    var comps = msg.split(/\s+/g);
+    console.log(comps);
+    if ('listall' == comps[0].toLowerCase()) {
+        context.simpledb.doGet(dbkey, function(c, e) {
+            var transactions = JSON.parse(e.dbval || '{}');
+            return context.sendResponse(JSON.stringify(transactions));
+        });
+    } else if ('transfer' == comps[0].toLowerCase()) {
+        var phone = comps[1];
+        var amount = comps[2];
+        if (!phone || !amount) {
+            return context.sendResponse("Invalid msg format.\nSample format : transfer <phone-no> <amount>");
         }
-        return context.sendResponse("Invalid msg format : Please check the sample msg format : \n" + JSON.stringify(sampleRequest));
-    }
+        try {
+            amount = parseInt(amount);
+            if (amount < 0) {
+                return context.sendResponse("Amount shount be greater than Zero (0)");
+            }
+        } catch (e) {
+            return context.sendResponse("Please enter valid value for amount");
+        }
+        var userRequest = {
+            "reqtype": "barcreq",
+            "transaction-type": "reqfunds",
+            "amount": amount,
+            "reason": "transfer"
+        }
+        userRequest.tid = "" + Math.round(new Date().getTime() % 100000000);
 
-    var currentTransaction = {
-        transRequest: userRequest,
-        intiatedFrom: event.senderobj.channeltype + ":" + event.senderobj.channelid,
-        status: "waiting_for_approval",
-        startDate: new Date()
-    }
+        var currentTransaction = {
+            transRequest: userRequest,
+            intiatedFrom: dbkey,
+            status: "waiting_for_approval",
+            startDate: new Date()
+        }
 
-    context.simpledb.botleveldata.transactions[userRequest.tid] = currentTransaction;
 
-    var options = {
-        context: context,
-        event: event,
-        senderBot: "MerchantIBC",
-        receiverBot: "bdemo1",
-        message: userRequest,
-        userContext: event.contextobj,
-        refid: event.senderobj.channeltype + ":" + event.senderobj.channelid
+        // Get receiverBot from registry
+        var receiverBot = "bdemo1";
+        var options = {
+            context: context,
+            event: event,
+            senderBot: "MerchantIBC",
+            receiverBot: receiverBot,
+            message: userRequest,
+            userContext: event.contextobj,
+            refid: dbkey
+        }
+        sendIBCMessage(options);
+
+        context.simpledb.doGet(dbkey, function(_context, _event) {
+            var transactions = JSON.parse(_event.dbval || '{}');
+            transactions[userRequest.tid] = currentTransaction;
+            context.simpledb.doPut(dbkey, transactions, function(c, e) {
+                return context.sendResponse("");
+            });
+        });
+    } else {
+        context.sendResponse("Invalid msg format.\nSample format : transfer <phone-no> <amount>");
     }
-    sendIBCMessage(options);
-    context.sendResponse("Initiated request : " + JSON.stringify(userRequest));
 }
 
 /** Functions declared below are required **/
@@ -127,18 +152,29 @@ function handleIBCResponse(context, event) {
     } else {
         message = messageObj;
     }
+    var dbkey = event.contextobj.refid;
 
-    if (context.simpledb.botleveldata.transactions[message.tid]) {
-        var existingTransaction = context.simpledb.botleveldata.transactions[message.tid];
-        if (message.payload) existingTransaction.result = message.payload;
-        if (message.status) existingTransaction.status = message.status;
-        if (message.reason) existingTransaction.reason = message.reason;
-        existingTransaction.lastUpdateOn = new Date();
-        context.simpledb.botleveldata.transactions[message.tid] = existingTransaction;
-        return context.sendResponse("");
-    } else {
-        return context.sendResponse("No record found for transaction id : " + message.tid);
-    }
+    context.simpledb.doGet(dbkey, function(_context, _event) {
+        if (!_event.dbval) {
+            return context.sendResponse("No record found for transaction id : " + message.tid);
+        }
+        var transactions = JSON.parse(_event.dbval);
+        if (transactions[message.tid]) {
+            var existingTransaction = transactions[message.tid];
+            if (message.payload) existingTransaction.result = message.payload;
+            if (message.status) existingTransaction.status = message.status;
+            if (message.reason) existingTransaction.reason = message.reason;
+            existingTransaction.lastUpdateOn = new Date();
+            transactions[message.tid] = existingTransaction;
+            context.simpledb.doPut(dbkey, transactions, function(c, e) {
+                return context.sendResponse("");
+            });
+        } else {
+            return context.sendResponse("No record found for transaction id : " + message.tid);
+        }
+    });
+
+
 
     // Sample response
     // {"payload":"Dummy Approved","reason":"approved",
