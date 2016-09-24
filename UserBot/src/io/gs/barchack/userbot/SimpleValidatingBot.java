@@ -1,20 +1,20 @@
 package io.gs.barchack.userbot;
 
+import org.json.JSONObject;
+
 import io.gs.barchack.userbot.banking.BaseAccountBot;
 import io.gs.barchack.userbot.banking.IBCTransaction;
 import io.gs.barchack.userbot.banking.TransactionStore;
-import io.gs.barchack.userbot.messaging.Context;
-import io.gs.barchack.userbot.messaging.Message;
-import io.gs.barchack.userbot.messaging.Room;
 
 public class SimpleValidatingBot implements PersonalAccountBot, TransactionNotifier {
 	private BaseAccountBot base;
-	private Room userBotConversation;
+	private JSONObject userBotConversation;
+	private TransactionStore pers;
+
 	private long timeout;
 	private String timeoutbot;
-	private TransactionStore pers;
-	
-	public SimpleValidatingBot(BaseAccountBot baseBot, Room userBotConversation, TransactionStore pers) {
+
+	public SimpleValidatingBot(BaseAccountBot baseBot, JSONObject userBotConversation, TransactionStore pers) {
 		this.base = baseBot;
 		this.userBotConversation = userBotConversation;
 		this.pers = pers;
@@ -22,16 +22,16 @@ public class SimpleValidatingBot implements PersonalAccountBot, TransactionNotif
 		this.timeoutbot = "timeoutbot";
 	}
 	
-	private void sendMessage(String message, String context) {
+	private void sendMessage(String message, JSONObject context) {
 		//TODO
 	}
-	private String getTimeoutContext() {
+	private JSONObject getTimeoutContext() {
 		//TODO
 		return null;
 	}
 
-	private IBCTransaction getTransactionFromUserMsg(Context ctx, Message msg) {
-		String text = msg.text();
+	private IBCTransaction getTransactionFromUserMsg(JSONObject ctx, JSONObject msg) {
+		String text = msg.getString("text");
 		String[] comps = text.split(" ");
 		if(comps.length != 2)
 			return null;
@@ -40,8 +40,8 @@ public class SimpleValidatingBot implements PersonalAccountBot, TransactionNotif
 		
 		return pers.getTransaction(comps[1]);
 	}
-	private IBCTransaction getTransactionFromTimeoutMsg(Context ctx, Message msg) {
-		String text = msg.text();
+	private IBCTransaction getTransactionFromTimeoutMsg(JSONObject ctx, JSONObject msg) {
+		String text = msg.getString("text");
 		String[] comps = text.split(" ");
 		if(comps.length != 2)
 			return null;
@@ -52,13 +52,18 @@ public class SimpleValidatingBot implements PersonalAccountBot, TransactionNotif
 	}
 
 	private void notifyOwner(String message) {
-		sendMessage(message, userBotConversation.context());
+		if(userBotConversation == null)
+			return;
+		sendMessage(message, userBotConversation);
 	}
 	private void sendApprovalMessageToOwner(String message, String id) {
+		if(userBotConversation == null)
+			return;
+		
 		String text = message 
 				+ " Reply [approve " + id + "] to approve"
 				+ " or [reject " + id + "] to reject.";
-		sendMessage(text, userBotConversation.context());
+		sendMessage(text, userBotConversation);
 	}
 	private void setTimeout(String id, long timeout) {
 		sendMessage("notify " + timeout + " " + id, getTimeoutContext());
@@ -66,8 +71,8 @@ public class SimpleValidatingBot implements PersonalAccountBot, TransactionNotif
 	private void cancelTimeout(String id) {
 		sendMessage("cancel " + id, getTimeoutContext());
 	}
-	private boolean isApprovedByUser(Message msg) {
-		String txt = msg.text().toLowerCase();
+	private boolean isApprovedByUser(JSONObject msg) {
+		String txt = msg.getString("text").toLowerCase();
 		if(txt.startsWith("approve"))
 			return true;
 		return false;
@@ -117,12 +122,15 @@ public class SimpleValidatingBot implements PersonalAccountBot, TransactionNotif
 	
 	@Override
 	public void performTransaction(IBCTransaction t) {
+		System.out.println("Got transaction:" + t.getRequestDisplay() + ", from:" + t.getRequestingEntityDisplay());
+		
 		sendApprovalMessageToOwner(getTransactionApprovalMessage(t), t.getRequestUUID());
 		setTimeout(t.getRequestUUID(), this.timeout);
 	}
+	
 	@Override
-	public void handleOtherIBC(Context ctx, Message msg) {
-		if(! ctx.sender().equals(timeoutbot))
+	public void handleOtherIBC(JSONObject ctx, JSONObject sdr, JSONObject msg) {
+		if(! sdr.getString("channelid").equals(timeoutbot)) //TODO
 			return;
 		
 		IBCTransaction transaction = getTransactionFromTimeoutMsg(ctx, msg);
@@ -133,7 +141,12 @@ public class SimpleValidatingBot implements PersonalAccountBot, TransactionNotif
 	}
 	
 	@Override
-	public void handleMessage(Context ctx, Message msg) {
+	public void handleMessage(JSONObject ctx, JSONObject sdr, JSONObject msg) {
+		if(msg.getString("text").trim().toLowerCase().equals("register")) {
+			this.userBotConversation = ctx;
+			return;
+		}
+		
 		IBCTransaction transaction = getTransactionFromUserMsg(ctx, msg);
 		if(transaction == null || transaction.isComplete())
 			return;

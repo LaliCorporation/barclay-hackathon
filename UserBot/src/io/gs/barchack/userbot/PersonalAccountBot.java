@@ -1,12 +1,12 @@
 package io.gs.barchack.userbot;
 
+import org.json.JSONObject;
+
 import io.gs.barchack.userbot.banking.IBCTransaction;
-import io.gs.barchack.userbot.messaging.Context;
-import io.gs.barchack.userbot.messaging.Message;
 
 public interface PersonalAccountBot {
 	public void performTransaction(IBCTransaction t);
 	
-	public void handleMessage(Context ctx, Message msg);
-	public void handleOtherIBC(Context ctx, Message msg);
+	public void handleMessage(JSONObject ctx, JSONObject sdr, JSONObject msg);
+	public void handleOtherIBC(JSONObject ctx, JSONObject sdr, JSONObject msg);
 }
