@@ -40,7 +40,9 @@ public class AutoapprovalBotHandler extends HttpServlet {
 		System.out.println("Got req...");
 		
 		String user = getUser(request);
-		PersonalAccountBot bot = app.getAutoapprovalBot(user);
+		String botname = "auto-" + user;
+		
+		PersonalAccountBot bot = app.getAutoapprovalBot(user, botname);
 		
 		JSONObject ctx = new JSONObject(request.getParameter("contextobj"));
 		JSONObject msg = new JSONObject(request.getParameter("messageobj"));

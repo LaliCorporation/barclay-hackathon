@@ -40,7 +40,9 @@ public class SimpleBotHandler extends HttpServlet {
 		System.out.println("Got req...");
 		
 		String user = getUser(request);
-		PersonalAccountBot bot = app.getSimpleBot(user);
+		String botname = "simple-" + user;
+		
+		PersonalAccountBot bot = app.getSimpleBot(user, botname);
 		
 		JSONObject ctx = new JSONObject(request.getParameter("contextobj"));
 		JSONObject msg = new JSONObject(request.getParameter("messageobj"));

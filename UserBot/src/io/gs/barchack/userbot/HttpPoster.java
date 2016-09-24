@@ -88,4 +88,83 @@ public class HttpPoster {
 		System.out.println(response.toString());
 
 	}
+	public static void createBot(String botname) throws Exception {
+		System.out.println("Making API call...");
+		
+		String url = "https://dev-api.gupshup.io/sm/api/bot/"+botname+"/create";
+		URL obj = new URL(url);
+		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+
+		//add reuqest header
+		con.setRequestMethod("PUT");
+		con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		con.setRequestProperty("apikey", "2d045dc742134d98cd475cd63196c6c1");
+		
+		con.setDoOutput(false);
+
+		int responseCode = con.getResponseCode();
+		System.out.println("\nSending 'PUT' request to URL : " + url);
+		System.out.println("Response Code : " + responseCode);
+
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine;
+		StringBuffer response = new StringBuffer();
+
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+		in.close();
+
+		//print result
+		System.out.println(response.toString());
+
+	}
+	public static void setCallback(String botname, String callback) throws Exception {
+		System.out.println("Making API call...");
+		
+		String url = "https://dev-api.gupshup.io/sm/api/v1/bot/"+botname+"/settings/type/callback-get";
+		URL obj = new URL(url);
+		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+
+		//add reuqest header
+		con.setRequestMethod("POST");
+		con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		con.setRequestProperty("apikey", "2d045dc742134d98cd475cd63196c6c1");
+		
+		String urlParameters = "url="
+				+ URLEncoder.encode(callback, "UTF-8")
+				;
+		
+		// Send post request
+		con.setDoOutput(true);
+		DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+		wr.writeBytes(urlParameters);
+		wr.flush();
+		wr.close();
+
+		int responseCode = con.getResponseCode();
+		System.out.println("\nSending 'POST' request to URL : " + url);
+		System.out.println("Post parameters : " + urlParameters);
+		System.out.println("Response Code : " + responseCode);
+
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine;
+		StringBuffer response = new StringBuffer();
+
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+		in.close();
+
+		//print result
+		System.out.println(response.toString());
+
+	}
+	
+	public static void main(String[] args) throws Exception {
+		createBot("hahabot");
+		setCallback("hahabot", "https://c3f3c77d.ngrok.io/UserBot/simplebot/nir1");
+	}
 }

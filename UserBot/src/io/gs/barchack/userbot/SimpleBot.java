@@ -6,10 +6,10 @@ import io.gs.barchack.userbot.banking.BaseAccountBot;
 import io.gs.barchack.userbot.banking.IBCTransaction;
 import io.gs.barchack.userbot.banking.TransactionStore;
 
-public class SimpleValidatingBot extends BaseValidatingBot {
+public class SimpleBot extends BaseValidatingBot {
 	private JSONObject userBotConversation;
 	
-	public SimpleValidatingBot(BaseAccountBot baseBot, TransactionStore pers, String botname) {
+	public SimpleBot(BaseAccountBot baseBot, TransactionStore pers, String botname) {
 		super(baseBot, pers, botname);
 	}
 	

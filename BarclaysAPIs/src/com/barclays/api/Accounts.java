@@ -23,7 +23,6 @@ public class Accounts extends HttpServlet {
 		try {
 			acct = Data.getInstance().getAccounts();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -84,7 +83,6 @@ public class Accounts extends HttpServlet {
 		try {
 			err.put("err", message);
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return err;

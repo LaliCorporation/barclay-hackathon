@@ -18,8 +18,6 @@ import com.barclays.utils.Helper;
 
 @WebServlet("/customers/*")
 public class Customers extends HttpServlet {
-
-
 	private JSONArray cust = new JSONArray();
 	
 	public Customers(){
@@ -60,5 +58,4 @@ public class Customers extends HttpServlet {
 		else
 			resp.getWriter().write("{\"error\":\"Not Found\"}\"");
 	}
-	
 }

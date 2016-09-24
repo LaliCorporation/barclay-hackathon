@@ -40,7 +40,9 @@ public class WorkflowBotHandler extends HttpServlet {
 		System.out.println("Got req...");
 		
 		String user = getUser(request);
-		PersonalAccountBot bot = app.getWorkflowBot(user);
+		String botname = "workflow-" + user;
+		
+		PersonalAccountBot bot = app.getWorkflowBot(user, botname);
 		
 		JSONObject ctx = new JSONObject(request.getParameter("contextobj"));
 		JSONObject msg = new JSONObject(request.getParameter("messageobj"));
