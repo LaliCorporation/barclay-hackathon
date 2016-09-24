@@ -63,7 +63,7 @@ public class Accounts extends HttpServlet {
 
 					out = dr;
 				} else {
-					out = getErrorJSON("Inufficient fund");
+					out = getErrorJSON("Insufficient funds");
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -87,5 +87,8 @@ public class Accounts extends HttpServlet {
 		}
 		return err;
 	}
-
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doGet(request, response);
+	}
 }

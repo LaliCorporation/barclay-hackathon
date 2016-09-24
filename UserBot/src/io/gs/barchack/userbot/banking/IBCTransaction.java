@@ -22,4 +22,5 @@ public interface IBCTransaction {
 	public String getId();
 	
 	public String merchant();
+	public String userPhone();
 }

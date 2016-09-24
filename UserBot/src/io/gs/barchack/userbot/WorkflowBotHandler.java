@@ -62,7 +62,8 @@ public class WorkflowBotHandler extends HttpServlet {
 								sdr.getString("channelid"),
 								jo.getInt("amount"),
 								jo.getString("reason"),
-								jo.getString("tid"));
+								jo.getString("tid"), 
+								user);
 						app.getStore().addTransaction(rf);
 						bot.performTransaction(rf);
 					}

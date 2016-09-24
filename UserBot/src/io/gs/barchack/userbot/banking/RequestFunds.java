@@ -4,12 +4,13 @@ import org.json.JSONObject;
 
 public class RequestFunds implements IBCTransaction {
 	
-	public RequestFunds(JSONObject ctx, String sender, int amount, String reason, String id) {
+	public RequestFunds(JSONObject ctx, String sender, int amount, String reason, String id, String phone) {
 		this.ctx = ctx;
 		this.sender = sender;
 		this.display = reason;
 		this.amount = amount;
 		this.id = id;
+		this.phone = phone;
 	}
 	
 	private boolean complete = false;
@@ -17,9 +18,9 @@ public class RequestFunds implements IBCTransaction {
 	private String payload = "";
 	
 	private JSONObject ctx;
-	private String sender, reason, display, id;
+	private String sender, reason, display, id, phone;
 	private int amount;
-
+	
 	public int amount() {
 		return amount;
 	}
@@ -100,5 +101,10 @@ public class RequestFunds implements IBCTransaction {
 	@Override
 	public String merchant() {
 		return sender;
+	}
+
+	@Override
+	public String userPhone() {
+		return phone;
 	}
 }

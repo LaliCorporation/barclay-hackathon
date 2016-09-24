@@ -2,12 +2,16 @@ package io.gs.barchack.userbot;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
 import javax.net.ssl.HttpsURLConnection;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class HttpPoster {
 	// HTTP GET request
@@ -161,6 +165,106 @@ public class HttpPoster {
 		//print result
 		System.out.println(response.toString());
 
+	}
+	public static JSONObject makeTransaction(String accid, String merchant, double amount) {
+		System.out.println("Making API call...");
+		JSONObject toret = new JSONObject();
+		
+		try {
+			String url = "https://c3f3c77d.ngrok.io/BarclaysAPIs/accounts/trans/" + accid;
+			URL obj = new URL(url);
+			HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+	
+			//add reuqest header
+			con.setRequestMethod("POST");
+			
+			String urlParameters = "toId="
+					+ URLEncoder.encode(merchant, "UTF-8")
+					+ "amount="
+					+ URLEncoder.encode(amount + "", "UTF-8")
+					;
+			
+			// Send post request
+			con.setDoOutput(true);
+			DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+			wr.writeBytes(urlParameters);
+			wr.flush();
+			wr.close();
+	
+			int responseCode = con.getResponseCode();
+			System.out.println("\nSending 'POST' request to URL : " + url);
+			System.out.println("Post parameters : " + urlParameters);
+			System.out.println("Response Code : " + responseCode);
+	
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+	
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+
+			//print result
+			System.out.println(response.toString());
+			
+			try {
+				JSONObject jo = new JSONObject(response.toString());
+				if(jo.has("err")) {
+					toret.put("success", false);
+					toret.put("msg", "Bank response malformed");
+					return toret;
+				} else {
+					toret.put("success", true);
+				}
+			} catch (JSONException ex) {
+				toret.put("success", false);
+				toret.put("msg", "Bank response malformed");
+			}
+		} catch (IOException e) {
+			toret.put("success", false);
+			toret.put("msg", "Connection Problem");
+		}
+		return toret;
+	}
+	public static String getAccountId(String phone) {
+		System.out.println("Making API call...");
+		
+		try {
+			String url = "https://c3f3c77d.ngrok.io/BarclaysAPIs/customers/phone/" + phone;
+			URL obj = new URL(url);
+			HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+	
+			//add reuqest header
+			con.setRequestMethod("GET");			
+			con.setDoOutput(false);
+	
+			int responseCode = con.getResponseCode();
+			System.out.println("\nSending 'GET' request to URL : " + url);
+			System.out.println("Response Code : " + responseCode);
+	
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+	
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+
+			//print result
+			System.out.println(response.toString());
+			
+			try {
+				JSONObject jo = new JSONObject(response.toString());
+				return jo.getString("id");
+			} catch (Exception e) {}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public static void main(String[] args) throws Exception {
