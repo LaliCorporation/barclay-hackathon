@@ -228,11 +228,49 @@ public class HttpPoster {
 		}
 		return toret;
 	}
-	public static String getAccountId(String phone) {
+	public static String getCustomerId(String phone) {
 		System.out.println("Making API call...");
 		
 		try {
 			String url = "https://c3f3c77d.ngrok.io/BarclaysAPIs/customers/phone/" + phone;
+			URL obj = new URL(url);
+			HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+	
+			//add reuqest header
+			con.setRequestMethod("GET");			
+			con.setDoOutput(false);
+	
+			int responseCode = con.getResponseCode();
+			System.out.println("\nSending 'GET' request to URL : " + url);
+			System.out.println("Response Code : " + responseCode);
+	
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+	
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+
+			//print result
+			System.out.println(response.toString());
+			
+			try {
+				JSONObject jo = new JSONObject(response.toString());
+				return jo.getString("id");
+			} catch (Exception e) {}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	public static String getAccountId(String customerid) {
+		System.out.println("Making API call...");
+		
+		try {
+			String url = "https://c3f3c77d.ngrok.io/BarclaysAPIs/accounts/custid/" + customerid;
 			URL obj = new URL(url);
 			HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 	

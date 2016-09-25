@@ -15,7 +15,8 @@ public class DummyBaseBot implements BaseAccountBot {
 		String merchant = t.merchant();
 		
 		String userid = HttpPoster.getAccountId(phone);
-		JSONObject resp = HttpPoster.makeTransaction(userid, merchant, amount);
+		String accountid = HttpPoster.getAccountId(userid);
+		JSONObject resp = HttpPoster.makeTransaction(accountid, merchant, amount);
 		
 		if(resp.getBoolean("success")) {
 			t.complete("Approved");

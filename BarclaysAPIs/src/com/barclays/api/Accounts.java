@@ -41,6 +41,8 @@ public class Accounts extends HttpServlet {
 			String[] args = path.split("/");
 			String custId = args[2];
 			out = Helper.filter(acct, "customerId", custId);
+			
+			
 		} else if (path.startsWith("/id/")) {
 			String[] args = path.split("/");
 			String id = args[2];
@@ -50,8 +52,14 @@ public class Accounts extends HttpServlet {
 				String[] args = path.split("/");
 				String drid = args[2];
 				String crid = req.getParameter("toId");
+				
+				System.out.println("DRID:" + drid);
+				
+				
 				double amount = Double.parseDouble(req.getParameter("amount"));
 				JSONObject dr = Helper.filter(acct, "id", drid);
+				System.out.println("From ac:" + dr.toString());
+				
 				double drbal = dr.getDouble("currentBalance");
 				JSONObject cr = Helper.filter(acct, "id", crid);
 				double crbal = cr.getDouble("currentBalance");
