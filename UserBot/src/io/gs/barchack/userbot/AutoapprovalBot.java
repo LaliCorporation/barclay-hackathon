@@ -3,6 +3,7 @@ package io.gs.barchack.userbot;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.gs.barchack.userbot.banking.BaseAccountBot;
@@ -33,10 +34,19 @@ public class AutoapprovalBot extends BaseValidatingBot {
 		
 		System.out.println("Have user msg...");
 		
+		JSONObject msgobj = new JSONObject();
+		msgobj.put("type", "survey");
+		msgobj.put("question", message);
+		JSONArray optarr = new JSONArray();
+		msgobj.put("options", optarr);
+		
+		optarr.put("approve " + id);
+		optarr.put("reject " + id);
+		sendMessage(msgobj.toString(), userBotConversation);
+
 		String text = message 
 				+ " Reply [approve " + id + "] to approve"
 				+ " or [reject " + id + "] to reject.";
-		sendMessage(text, userBotConversation);
 	}
 	private void notifyOwner(String message) {
 		if(userBotConversation == null)
