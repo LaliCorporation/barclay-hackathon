@@ -16,7 +16,7 @@ public class WorkflowBot extends BaseValidatingBot {
 	}
 	
 	private JSONObject getAppropriateContext(int amount) {
-		if(amount > 1000)
+		if(amount > 100)
 			return adminBotConversation;
 		return userBotConversation;
 	}
@@ -51,21 +51,21 @@ public class WorkflowBot extends BaseValidatingBot {
 	
 
 	@Override
-	public void handleMessage(JSONObject ctx, JSONObject sdr, JSONObject msg) {
+	public String handleMessage(JSONObject ctx, JSONObject sdr, JSONObject msg) {
 		if(msg.getString("text").trim().toLowerCase().equals("register-user")) {
 			this.userBotConversation = ctx;
 			System.out.println("Registered...");
-			return;
+			return "Registered as user.";
 		}
 		if(msg.getString("text").trim().toLowerCase().equals("register-admin")) {
 			this.adminBotConversation = ctx;
 			System.out.println("Registered...");
-			return;
+			return "Registered as admin";
 		}
 		
 		IBCTransaction transaction = getTransactionFromUserMsg(ctx, msg);
 		if(transaction == null || transaction.isComplete())
-			return;
+			return "";
 		cancelTimeout(transaction.getRequestUUID());
 		if(isApprovedByUser(msg)) {
 			base.performTransaction(transaction, this);
@@ -73,6 +73,7 @@ public class WorkflowBot extends BaseValidatingBot {
 			transaction.cancel("rejected by user");			
 			notifyTransactionResults(transaction);
 		}
+		return "";
 	}
 	
 	@Override

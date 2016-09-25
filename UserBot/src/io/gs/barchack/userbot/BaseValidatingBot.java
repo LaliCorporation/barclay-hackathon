@@ -99,5 +99,5 @@ public abstract class BaseValidatingBot implements PersonalAccountBot, Transacti
 		notifyTransactionResults(transaction);
 	}
 	
-	public abstract void handleMessage(JSONObject ctx, JSONObject sdr, JSONObject msg);
+	public abstract String handleMessage(JSONObject ctx, JSONObject sdr, JSONObject msg);
 }

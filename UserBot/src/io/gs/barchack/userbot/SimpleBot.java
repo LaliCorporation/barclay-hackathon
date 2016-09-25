@@ -39,16 +39,16 @@ public class SimpleBot extends BaseValidatingBot {
 	
 
 	@Override
-	public void handleMessage(JSONObject ctx, JSONObject sdr, JSONObject msg) {
+	public String handleMessage(JSONObject ctx, JSONObject sdr, JSONObject msg) {
 		if(msg.getString("text").trim().toLowerCase().equals("register")) {
 			this.userBotConversation = ctx;
 			System.out.println("Registered...");
-			return;
+			return "Registered.";
 		}
 		
 		IBCTransaction transaction = getTransactionFromUserMsg(ctx, msg);
 		if(transaction == null || transaction.isComplete())
-			return;
+			return "";
 		cancelTimeout(transaction.getRequestUUID());
 		if(isApprovedByUser(msg)) {
 			base.performTransaction(transaction, this);
@@ -56,6 +56,7 @@ public class SimpleBot extends BaseValidatingBot {
 			transaction.cancel("rejected by user");			
 			notifyTransactionResults(transaction);
 		}
+		return "";
 	}
 	
 	@Override

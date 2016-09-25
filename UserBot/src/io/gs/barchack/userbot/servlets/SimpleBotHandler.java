@@ -1,4 +1,4 @@
-package io.gs.barchack.userbot;
+package io.gs.barchack.userbot.servlets;
 
 import java.io.IOException;
 
@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
+import io.gs.barchack.userbot.Application;
+import io.gs.barchack.userbot.PersonalAccountBot;
 import io.gs.barchack.userbot.banking.RequestFunds;
 
 /**
@@ -74,8 +76,8 @@ public class SimpleBotHandler extends HttpServlet {
 				}
 			} else {
 				//user message
-				bot.handleMessage(ctx, sdr, msg);
-				response.getWriter().append("Served at: ").append(request.getContextPath());
+				String resp = bot.handleMessage(ctx, sdr, msg);
+				response.getWriter().println(resp);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

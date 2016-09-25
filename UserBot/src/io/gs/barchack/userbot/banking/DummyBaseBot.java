@@ -14,7 +14,7 @@ public class DummyBaseBot implements BaseAccountBot {
 		String phone = t.userPhone();
 		String merchant = t.merchant();
 		
-		String userid = HttpPoster.getAccountId(phone);
+		String userid = HttpPoster.getCustomerId(phone);
 		String accountid = HttpPoster.getAccountId(userid);
 		JSONObject resp = HttpPoster.makeTransaction(accountid, merchant, amount);
 		

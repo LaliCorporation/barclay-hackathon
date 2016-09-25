@@ -1,4 +1,4 @@
-package io.gs.barchack.userbot;
+package io.gs.barchack.userbot.servlets;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -6,6 +6,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import io.gs.barchack.userbot.HttpPoster;
 
 /**
  * Servlet implementation class UserBotRegister

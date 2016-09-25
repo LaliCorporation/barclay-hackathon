@@ -27,8 +27,8 @@ public class AutoapprovalBot extends BaseValidatingBot {
 	}
 	
 	public void sendApprovalMessageToOwner(String message, String id) {
-		System.out.println("Sending approval message...");
-		if(userBotConversation == null)
+		System.out.println("Sending approval message:" + this.getClass().getName());
+		if(this.userBotConversation == null)
 			return;
 		
 		System.out.println("Have user msg...");
@@ -52,22 +52,22 @@ public class AutoapprovalBot extends BaseValidatingBot {
 	
 
 	@Override
-	public void handleMessage(JSONObject ctx, JSONObject sdr, JSONObject msg) {
+	public String handleMessage(JSONObject ctx, JSONObject sdr, JSONObject msg) {
 		if(msg.getString("text").trim().toLowerCase().equals("register")) {
 			this.userBotConversation = ctx;
 			System.out.println("Registered...");
-			return;
+			System.out.println("CTX:" + ctx);
+			return "Registered";
 		}
 		if(msg.getString("text").trim().toLowerCase().startsWith("preapprove ")) {
 			String merchant = msg.getString("text").trim().split(" ")[1];
 			String text = merchant + " preapproved.";
-			sendMessage(text, userBotConversation);
 			preapprove(merchant);
-			return;
+			return text;
 		}
 		IBCTransaction transaction = getTransactionFromUserMsg(ctx, msg);
 		if(transaction == null || transaction.isComplete())
-			return;
+			return "";
 		cancelTimeout(transaction.getRequestUUID());
 		if(isApprovedByUser(msg)) {
 			base.performTransaction(transaction, this);
@@ -82,12 +82,11 @@ public class AutoapprovalBot extends BaseValidatingBot {
 					+ "from " + transaction.merchant() + " being automically approved.";
 				sendMessage(text, userBotConversation);
 			}
-			
-			
 		} else {
 			transaction.cancel("rejected by user");			
 			notifyTransactionResults(transaction);
 		}
+		return "";
 	}
 	
 	@Override

@@ -1,4 +1,4 @@
-package io.gs.barchack.userbot;
+package io.gs.barchack.userbot.servlets;
 
 import java.io.IOException;
 
@@ -10,13 +10,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
+import io.gs.barchack.userbot.Application;
+import io.gs.barchack.userbot.PersonalAccountBot;
 import io.gs.barchack.userbot.banking.RequestFunds;
 
 /**
  * Servlet implementation class BotHandler
  */
-@WebServlet("/autoapproval/*")
-public class AutoapprovalBotHandler extends HttpServlet {
+@WebServlet("/workflow/*")
+public class WorkflowBotHandler extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private final Application app = Application.getInstance();
@@ -24,7 +26,7 @@ public class AutoapprovalBotHandler extends HttpServlet {
     /**
      * Default constructor. 
      */
-    public AutoapprovalBotHandler() {
+    public WorkflowBotHandler() {
         // TODO Auto-generated constructor stub
     }
     
@@ -40,9 +42,9 @@ public class AutoapprovalBotHandler extends HttpServlet {
 		System.out.println("Got req...");
 		
 		String user = getUser(request);
-		String botname = "auto" + user;
+		String botname = "workflow" + user;
 		
-		PersonalAccountBot bot = app.getAutoapprovalBot(user, botname);
+		PersonalAccountBot bot = app.getWorkflowBot(user, botname);
 		
 		JSONObject ctx = new JSONObject(request.getParameter("contextobj"));
 		JSONObject msg = new JSONObject(request.getParameter("messageobj"));
@@ -73,8 +75,8 @@ public class AutoapprovalBotHandler extends HttpServlet {
 			}
 		} else {
 			//user message
-			bot.handleMessage(ctx, sdr, msg);
-			response.getWriter().append("Served at: ").append(request.getContextPath());
+			String resp = bot.handleMessage(ctx, sdr, msg);
+			response.getWriter().println(resp);
 		}
 	}
 

@@ -100,7 +100,9 @@ public class RequestFunds implements IBCTransaction {
 
 	@Override
 	public String merchant() {
-		return sender;
+		if(sender.startsWith("merchant"))
+			return sender.substring("merchant".length());
+		return null;
 	}
 
 	@Override

@@ -41,6 +41,8 @@ public class Application {
 		return nirBot1;
 	}
 	public PersonalAccountBot getWorkflowBot(String username, String botname) {
+		if(workflowBots.containsKey(username))
+			return workflowBots.get(username);
 		PersonalAccountBot nirBot1 = null;
 		nirBot1 = new WorkflowBot(
 				new DummyBaseBot(),
@@ -51,6 +53,8 @@ public class Application {
 		return nirBot1;
 	}
 	public PersonalAccountBot getAutoapprovalBot(String username, String botname) {
+		if(autoBots.containsKey(username))
+			return autoBots.get(username);
 		PersonalAccountBot nirBot1 = null;
 		nirBot1 = new AutoapprovalBot(
 				new DummyBaseBot(),
