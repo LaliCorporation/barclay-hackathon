@@ -20,14 +20,27 @@ function MessageHandler(context, event) {
     if ('listall' == comps[0].toLowerCase()) {
         context.simpledb.doGet(dbkey, function(c, e) {
             var transactions = JSON.parse(e.dbval || '{}');
+            var res = 'Userbot | tid | amount | status\n';
+
+            Object.keys(transactions).forEach(function(key) {
+                var val = transactions[key];
+                console.log(JSON.stringify(val));
+                res = res + val.receiverBot + " | " + key + " | " + val.transRequest.amount + " | " + val.status + "\n";
+            });
+            // res = res.replace(/{/g, "\n\t").replace(/}/g, "").replace(/"/g, "");
+            return context.sendResponse(res);
+        });
+    } else if ('listalldetailed' == comps[0].toLowerCase()) {
+        context.simpledb.doGet(dbkey, function(c, e) {
+            var transactions = JSON.parse(e.dbval || '{}');
             return context.sendResponse(JSON.stringify(transactions));
         });
-    } else if ('transfer' == comps[0].toLowerCase()) {
-        var phone = comps[1];
-        var amount = comps[2];
-        if (!phone || !amount) {
-            return context.sendResponse("Invalid msg format.\nSample format : transfer <phone-no> <amount>");
+    } else if ('receive' == comps[0].toLowerCase()) {
+        if (comps.length != 4 || !comps[1] || !comps[3] || comps[2] != 'from') {
+            return context.sendResponse("Invalid msg format.\nSample format : receive <amount> from <phone-no>");
         }
+        var phone = comps[3];
+        var amount = comps[1];
         try {
             amount = parseInt(amount);
             if (amount < 0) {
@@ -48,32 +61,44 @@ function MessageHandler(context, event) {
             transRequest: userRequest,
             intiatedFrom: dbkey,
             status: "waiting_for_approval",
-            startDate: new Date()
+            startDate: new Date(),
+            userContext: event.contextobj
         }
-
 
         // Get receiverBot from registry
-        var receiverBot = "bdemo1";
-        var options = {
-            context: context,
-            event: event,
-            senderBot: "MerchantIBC",
-            receiverBot: receiverBot,
-            message: userRequest,
-            userContext: event.contextobj,
-            refid: dbkey
-        }
-        sendIBCMessage(options);
+        var receiverBot = "simple9819014845";
+        var registryUrl = "https://c3f3c77d.ngrok.io/BotRegistrar/getbot?";
 
-        context.simpledb.doGet(dbkey, function(_context, _event) {
-            var transactions = JSON.parse(_event.dbval || '{}');
-            transactions[userRequest.tid] = currentTransaction;
-            context.simpledb.doPut(dbkey, transactions, function(c, e) {
-                return context.sendResponse("");
+        var query = "mobile=" + phone.replace("+91", "") + "&type=wallet";
+        context.simplehttp.makeGet(registryUrl + query, null, function(c, e) {
+            if (e.getresp) {
+                receiverBot = e.getresp;
+            }
+            currentTransaction.receiverBot = receiverBot;
+            var options = {
+                context: context,
+                event: event,
+                senderBot: "merchant4051694345404903",
+                receiverBot: receiverBot,
+                message: userRequest,
+                userContext: event.contextobj,
+                refid: dbkey
+            }
+            sendIBCMessage(options);
+
+            context.simpledb.doGet(dbkey, function(_context, _event) {
+                var transactions = JSON.parse(_event.dbval || '{}');
+                transactions[userRequest.tid] = currentTransaction;
+                sendResponseToUser(context, userRequest.tid, currentTransaction)
+                context.simpledb.doPut(dbkey, transactions, function(c, e) {
+                    return context.sendResponse("");
+                });
             });
+
         });
+
     } else {
-        context.sendResponse("Invalid msg format.\nSample format : transfer <phone-no> <amount>");
+        context.sendResponse("Invalid msg format.\nSample format : receive <amount> from <phone-no>");
     }
 }
 
@@ -126,11 +151,11 @@ function sendIBCMessage(options) {
 
 function sendMesgApi(context, userContext, message) {
     // context, event, senderBot, receiverBot, message
-    var botName = 'MerchantIBC';
+    var botName = 'merchant4051694345404903';
     var url = 'https://dev-api.gupshup.io/sm/api/bot/' + botName + '/msg';
     var headers = {
         'content-type': 'application/x-www-form-urlencoded',
-        'apikey': 'd5a5da48c1fe45f1c52dd1fdaf4da8a4'
+        'apikey': '2d045dc742134d98cd475cd63196c6c1'
     }
     console.log('message :-> ' + JSON.stringify(message));
     var msgStr = (isJson(message)) ? JSON.stringify(message) : message;
@@ -169,6 +194,9 @@ function handleIBCResponse(context, event) {
             context.simpledb.doPut(dbkey, transactions, function(c, e) {
                 return context.sendResponse("");
             });
+
+            sendResponseToUser(context, message.tid, existingTransaction);
+
         } else {
             return context.sendResponse("No record found for transaction id : " + message.tid);
         }
@@ -184,6 +212,17 @@ function handleIBCResponse(context, event) {
     // message = 'FinalResponse:->' + message;
     // sendMesgApi(context, userContext, message);
 }
+
+function sendResponseToUser(context, tid, userTransaction) {
+    var message = "Transaction details : \nUser bot :" + userTransaction.receiverBot + "\nid : " + tid + "\nStatus : " + userTransaction.status;
+    if (userTransaction.userContext) {
+        console.log('Sending status to Merchat');
+        var userContext = userTransaction.userContext;
+        sendMesgApi(context, userContext, message);
+    }
+}
+
+
 
 function sortBotsByName(botsStr) {
     var arr = botsStr.split('-');
