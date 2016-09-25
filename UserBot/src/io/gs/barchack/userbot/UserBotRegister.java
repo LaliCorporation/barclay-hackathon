@@ -32,13 +32,13 @@ public class UserBotRegister extends HttpServlet {
 		String callback;
 		
 		if(type.equals("simple")) {
-			botname = "simple-" + userphone;
+			botname = "simple" + userphone;
 			callback = "https://c3f3c77d.ngrok.io/UserBot/simplebot/" + userphone;
 		} else if (type.equals("workflow")) {
-			botname = "workflow-" + userphone;
+			botname = "workflow" + userphone;
 			callback = "https://c3f3c77d.ngrok.io/UserBot/workflow/" + userphone;
 		} else if (type.equals("auto")) {
-			botname = "auto-" + userphone;
+			botname = "auto" + userphone;
 			callback = "https://c3f3c77d.ngrok.io/UserBot/autoapproval/" + userphone;
 		} else {
 			//TODO

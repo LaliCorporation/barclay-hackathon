@@ -37,44 +37,48 @@ public class SimpleBotHandler extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		System.out.println("Got req...");
-		
-		String user = getUser(request);
-		String botname = "simple-" + user;
-		
-		PersonalAccountBot bot = app.getSimpleBot(user, botname);
-		
-		JSONObject ctx = new JSONObject(request.getParameter("contextobj"));
-		JSONObject msg = new JSONObject(request.getParameter("messageobj"));
-		JSONObject sdr = new JSONObject(request.getParameter("senderobj"));
-		
-		if(ctx.getString("channeltype").equals("ibc")) {
-			try {
-				String txt = msg.getString("text");
-				System.out.println("Got IBC request:" + txt);
-				JSONObject jo = new JSONObject(txt);
-				System.out.println("JO:");
-				if(jo.getString("reqtype").equals("barcreq")) {
-					String ttype = jo.getString("transaction-type");
-					if(ttype.equals("reqfunds")) {
-						RequestFunds rf = new RequestFunds(
-								ctx,
-								sdr.getString("channelid"),
-								jo.getInt("amount"),
-								jo.getString("reason"),
-								jo.getString("tid"), 
-								user);
-						app.getStore().addTransaction(rf);
-						bot.performTransaction(rf);
+		try {
+			System.out.println("Got req...");
+			
+			String user = getUser(request);
+			String botname = "simple" + user;
+			
+			PersonalAccountBot bot = app.getSimpleBot(user, botname);
+			
+			JSONObject ctx = new JSONObject(request.getParameter("contextobj"));
+			JSONObject msg = new JSONObject(request.getParameter("messageobj"));
+			JSONObject sdr = new JSONObject(request.getParameter("senderobj"));
+			
+			if(ctx.getString("channeltype").equals("ibc")) {
+				try {
+					String txt = msg.getString("text");
+					System.out.println("Got IBC request:" + txt);
+					JSONObject jo = new JSONObject(txt);
+					System.out.println("JO:");
+					if(jo.getString("reqtype").equals("barcreq")) {
+						String ttype = jo.getString("transaction-type");
+						if(ttype.equals("reqfunds")) {
+							RequestFunds rf = new RequestFunds(
+									ctx,
+									sdr.getString("channelid"),
+									jo.getInt("amount"),
+									jo.getString("reason"),
+									jo.getString("tid"), 
+									user);
+							app.getStore().addTransaction(rf);
+							bot.performTransaction(rf);
+						}
 					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
+			} else {
+				//user message
+				bot.handleMessage(ctx, sdr, msg);
+				response.getWriter().append("Served at: ").append(request.getContextPath());
 			}
-		} else {
-			//user message
-			bot.handleMessage(ctx, sdr, msg);
-			response.getWriter().append("Served at: ").append(request.getContextPath());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

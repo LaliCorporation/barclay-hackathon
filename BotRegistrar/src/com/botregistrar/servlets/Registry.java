@@ -17,6 +17,9 @@ import com.botregistrar.main.RegManager;
 @WebServlet("/register")
 public class Registry extends HttpServlet {
 
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doPost(request, response);
+	}
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			String mobile = request.getParameter("mobile");

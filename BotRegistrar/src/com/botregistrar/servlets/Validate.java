@@ -14,7 +14,10 @@ import com.botregistrar.main.RegManager;
  */
 @WebServlet("/validate")
 public class Validate extends HttpServlet {
-	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doPost(request, response);
+	}
+
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String mobile = request.getParameter("mobile");
 		String seqid = request.getParameter("seqid");

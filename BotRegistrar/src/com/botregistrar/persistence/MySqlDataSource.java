@@ -14,8 +14,8 @@ public class MySqlDataSource {
     	
     	String dbName = "registry";
 		String dbHost = "localhost";
-		String dbUsername = "root";
-		String dbPassword = "root";
+		String dbUsername = "register";
+		String dbPassword = "registerpass";
 		
         ds = new BasicDataSource();
         ds.setDriverClassName("com.mysql.jdbc.Driver");
@@ -32,9 +32,8 @@ public class MySqlDataSource {
     }
 
     public Connection getConnection() throws SQLException {
-        return this.ds.getConnection();
+        Connection con = this.ds.getConnection();
+        con.setAutoCommit(false);
+        return con;
     }
-
-	
-
 }

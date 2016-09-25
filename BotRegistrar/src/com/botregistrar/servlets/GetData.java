@@ -24,5 +24,4 @@ public class GetData extends HttpServlet {
 			response.getWriter().append(botname);
 		}
 	}
-
 }
