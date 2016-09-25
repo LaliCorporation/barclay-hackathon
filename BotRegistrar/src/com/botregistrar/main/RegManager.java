@@ -15,7 +15,7 @@ public class RegManager {
 		
 		if(registryData.makeEntry(mobile, type, botname, seqid,otp)){
 			try {
-				Tools.sendOTP(mobile, "Otp for bot registry : "+Tools.generateOtp());
+				Tools.sendOTP(mobile, "Otp for bot registry : "+otp);
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 				e.printStackTrace();
